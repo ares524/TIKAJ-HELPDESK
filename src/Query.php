@@ -1,6 +1,7 @@
 <?php
 namespace RepositoryQuery;
 
+use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Query Base Class

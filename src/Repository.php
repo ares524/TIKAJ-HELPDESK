@@ -6,7 +6,7 @@ use Closure, Schema, DB ;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
-use Query;
+use RepositoryQuery\Query;
 /*
 |--------------------------------------------------------------------------
 | Repository Base Class
