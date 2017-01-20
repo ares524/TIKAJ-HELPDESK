@@ -39,11 +39,6 @@
       "RepositoryQuery\\Test\\": "tests"
     }
   },
-  "extra": {
-    "branch-alias": {
-      "dev-master": "0.4-dev"
-    }
-  },
   "archive" : {
     "exclude": [
       "/tests"
