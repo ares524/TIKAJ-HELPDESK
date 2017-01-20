@@ -1,0 +1,52 @@
+{
+  "name": "guosheng1987/laravel-repository-query",
+  "description": "This package support a easy way to bind a parameter named `$filters` to your url. After that your Bulider instance can bind it into your `Where` condition",
+  "keywords": [
+    "laravel",
+    "repository",
+    "repository pattern",
+    "eloquent",
+    "repositories",
+	"query",
+	"query library"
+  ],
+  "license": "BSD 2-Clause",
+  "authors": [
+    {
+      "name": "guosheng1987",
+      "email": "guosheng1987@126.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.9",
+    "illuminate/support": "~5.1",
+    "illuminate/database": "~5.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^4.8",
+    "mockery/mockery": "^0.9.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "RepositoryQuery\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "files": [
+      "tests/TestFunctions.php"
+    ],
+    "psr-4": {
+      "RepositoryQuery\\Test\\": "tests"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.4-dev"
+    }
+  },
+  "archive" : {
+    "exclude": [
+      "/tests"
+    ]
+  }
+}
