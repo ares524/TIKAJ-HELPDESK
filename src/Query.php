@@ -2,79 +2,70 @@
 namespace RepositoryQuery;
 
 use Illuminate\Http\Request;
-/*
-|--------------------------------------------------------------------------
-| Query Base Class
-|--------------------------------------------------------------------------
-|
-| Query类. 直接从url获取参数，解析参数
-|
-*/
+
+/**
+ * Query set several parameters into arrays so that we can use it in Repository class
+ *
+ * @author guosheng <guosheng1987@126.com>
+ */
 
 class Query {
 	
 	/**
-     * The Illuminate\Http\Request implementation.
-     *
-     * @var Request
+     * @var The Illuminate\Http\Request
      */
 	protected $request;
 	
 	/**
-     * The filters param in the request url,converts it into an array
-     *
-     * @var filters
+     * @var array
      */
 	public $filters;
 	
 	/**
-     * The orders param in the request url,converts it into an array
-     *
-     * @var
+     * @var array
      */
 	public $orders;
 	
 	/**
-     * The pagesize param in the request url,by default is 12
-     *
-     * @var 
+     * @var array
      */
 	public $pagesize = 12;
 	
 	/**
-     * The page param in the request url,by default is 1
-     *
-     * @var 
+     * @var array
      */
 	public $page = 1;
 	
 	/**
-     * Create a new Query instance.
-     *
-     * @return void
+     * Constructor.
+	 *
+     * @param Illuminate\Http\Request $request    The Request instance
      */
     public function __construct(Request $request)
     {
-        $this->request = $request;
-		
-		$this->filters = $this->_getFilters();
-		
-		$this->orders = $this->_getOrders();
-				
-		$this->pagesize = $this->_getPagesize();
-		
-		$this->page = $this->_getPage();
+		$this->initialize($request);
     }
 	
 	/**
-	 * 获取筛选(搜索)的参数
-	 * &filters[username][like]=abc&filters[gender][equal]=1
-	 * 
-	 * @param  Request $request 
+     * Sets the parameters 
 	 *
-	 * @return array  返回参数列表
+     * @param Illuminate\Http\Request $request    The Request instance
+     */
+    public function initialize($request)
+    {
+        $this->request = $request;
+		$this->filters = $this->getFilters();
+		$this->orders = $this->getOrders();
+		$this->pagesize = $this->getPagesize();
+		$this->page = $this->getPage();
+    }
+
+	/**
+	 * Get filters parameter in url and convert in into an array
+	 *
+	 * @return array 
 	 */
-	public function _getFilters()
+	public function getFilters()
 	{
 		$filters = [];
 		$inputs = $this->request->input('filters') ?: [];
@@ -86,38 +77,11 @@ class Query {
 	}
 	
 	/**
-	 * 获取筛选(搜索)的参数, 返回给列表页面 
-	 * $columns 参数可以提供默认值给需要查询的控件 
-	 * &filters[username][like]=abc&filters[gender][equal]=1
-	 * 
-	 * @param  Request $request 
-	 * @param  Array $columns 
+	 * Get orders parameter in url and convert in into an array
+	 *
 	 * @return array
 	 */
-	public function _getRenderFilters($columns = [] )
-	{
-		$render_filters = [];
-		
-		$filters = $this->_getFilters($request);
-		
-		if( !empty($columns) ) 
-			foreach ($columns as $column) 
-				$render_filters[$column] = '';
-			
-		foreach ($this->filters as $k => $v) {
-			$render_filters[$k] = is_array($v) ? end($v):'';
-		}
-		
-		return $render_filters;
-	}
-	
-	/**
-	 * 获取排序的参数
-	 * order[id]=desc&order[created_at]=asc 类似这种方式、
-	 *
-	 * @return array 返回orders参数列表
-	 */
-	public function _getOrders()
+	public function getOrders()
 	{
 		$columns = $this->request->input('columns') ?: [];
 		$inputs = $this->request->input('order') ?: [];
@@ -133,11 +97,11 @@ class Query {
 	}
 	
 	/**
-	 * 获取排序的参数
+	 * Get defaut pagesize parameter in GET request url
 	 *
 	 * @return int 
 	 */
-	public function _getPagesize()
+	public function getPagesize()
 	{
 		$pagesize = $this->request->input('pagesize') ?: $this->pagesize;
 		
@@ -145,16 +109,82 @@ class Query {
 	}
 	
 	/**
-	 * 获取排序的参数
+	 * Get defaut page parameter in GET request url
 	 *
 	 * @return int 
 	 */
-	public function _getPage()
+	public function getPage()
 	{
 		$page = $this->request->input('page') ?: $this->page;
 		
 		return $page;
 	}
 	
+	/**
+	 * Support Facades method ,see getFilters.
+	 * 
+	 * @return array 
+	 */
+	public function filters()
+	{
+		$filters = $this->filters?:$this->getFilters();
+		
+		return $filters;
+	}
+
+	/**
+	 * Support Facades method ,see getOrders.
+	 * 
+	 * @return array 
+	 */
+	public function orders()
+	{
+		$orders = $this->orders?:$this->getOrders();
+		
+		return $orders;
+	}
+	
+	/**
+	 * Support Facades method ,see getPagesize.
+	 *
+	 * @return int 
+	 */
+	public function pagesize()
+	{
+		$pagesize = $this->pagesize?:$this->getPagesize();
+		
+		return $pagesize;
+	}
+	
+	/**
+	 * Support Facades method ,see getPage.
+	 *
+	 * @return int 
+	 */
+	public function page()
+	{
+		$page = $this->page ?: $this->getPage();
+		
+		return $page;
+	}
+
+	/**
+	 * formvars convert the fitlers into an 'key value' array . And it's used to fill the html form
+	 * 
+	 * @param  Array $columns 
+	 *
+	 * @return array
+	 */
+	public function formvars($columns = [] )
+	{
+		$formvars = [];
+			
+		foreach ($this->filters as $k => $v) {
+			$formvars[$k] = is_array($v) ? end($v):'';
+		}
+		
+		return $formvars;
+	}
+
 	
 }

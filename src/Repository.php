@@ -7,14 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
 use RepositoryQuery\Query;
-/*
-|--------------------------------------------------------------------------
-| Repository Base Class
-|--------------------------------------------------------------------------
-|
-| 仓库模型的基类. 提供各种通用查询的方法.
-|
-*/
+/**
+ * Repository base class,we use Dependency injection to in inject an Query instance.
+ * We can bulid our query like this '&filters[username][like]=abc&filters[gender][equal]=1' in Get request
+ *
+ * @author guosheng <guosheng1987@126.com>
+ */
 
 class Repository {
 	
