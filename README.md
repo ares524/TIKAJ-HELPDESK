@@ -8,13 +8,13 @@
 
 ### Demo
 
-At first,in the route file, we find *web.php* and write a simple resource route here.(Laravel 5.2 or lower version also similiar)
+At first,in the route file, we find *web.php* and write a simple Resource Route here.(Laravel 5.2 or lower version also similiar)
 
-    Route::resource('photos', 'PhotoController');
+    Route::resource('user', 'UserController');
 
 
-Our UserController in Repository Parttern,I consider Repository as an interactive Data Layer to help us insulate models ,so here we write a method named 'getUserPaginate'.
-In Laravel Docs.they do it like this. 
+I consider Repository as an interactive Data Layer to help us insulate models and controllers ,so here we write a method named 'getUserPaginate' in UserController.
+And in Laravel Docs,they do it like this. 
 
     <?php
 
@@ -44,7 +44,7 @@ In Laravel Docs.they do it like this.
         }
     }
 
-What's our UserRepository looks like?Don't worry,it shows here.
+What's our UserRepository?Don't worry,it shows here.
 
     <?php
 
