@@ -3,12 +3,14 @@ namespace Reposilib\Repository;
 
 use Closure, Schema, DB ;
 
+use Illuminate\Http\Request;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
-use Reposilib\Query;
+use Reposilib\Http\UriParser;
 /**
- * Repository base class,we use Dependency Injection to in inject an Query instance.
+ * Repository base class,we use Dependency Injection to inject an Request instance.
  * We can bulid our query like this '&filters[username][like]=abc&filters[gender][equal]=1' in Get request
  *
  * @author guosheng <guosheng1987@126.com>
@@ -17,23 +19,23 @@ use Reposilib\Query;
 class Repository {
 	
 	/*
-	 *  Query instance 
+	 *  UriParser instance 
 	 */
-	protected $query;
+	protected $uriParser;
 	
 	/**
-     * Create a new repository instance.
+     * construct, make a new UriParser instance and set it. 
      *
-     * @param  Query  $query
+     * @param  Illuminate\Http\Request  $request
      * @return void
      */
-    public function __construct(Query $query)
+    public function __construct(Request $request)
     {
-        $this->query = $query;
+         $this->uriParser = new UriParser($request);
     }
 	
 	/**
-     * Create a new repository instance.
+     * Get table columns from Query Builder.
      *
      * @param  Illuminate\Database\Eloquent\Builder $builder
 	 *
@@ -65,10 +67,10 @@ class Repository {
 	}
 
 	/**
-	 * After Filters was converted to Where condition,Binding it to Query Builder 
+	 * After Filters was converted to where constraint,Attaching it to Query Builder 
 	 * 
 	 * @param  Array $filters 
-	 * @param  Builder $builder 
+	 * @param  Illuminate\Database\Eloquent\Builder $builder 
 	 * @param  Array $columns
 	 *
 	 * @return Array  $filters converted
@@ -101,14 +103,13 @@ class Repository {
 	}
 	
 	/**
-	 * 给Builder绑定order by 条件
-	 * 注意：参数的值为空字符串，则会忽略该条件
+	 * After Orders was converted to order constraint,Attaching it to Query Builder
 	 * 
 	 * @param  Array $orders 
-	 * @param  Builder $builder 
+	 * @param  Illuminate\Database\Eloquent\Builder $builder 
 	 * @param  Array $columns
 	 *
-	 * @return array   返回筛选(搜索)的参数
+	 * @return array $orders
 	 */
 	 
 	private function _doOrder($orders, Builder $builder, $columns = [])
@@ -136,10 +137,10 @@ class Repository {
 	{	
 		$tables_columns = $this->_getColumns($builder);
 		
-		$filters = $this->_doFilter($this->query->filters, $builder, $tables_columns);
-		$orders = $this->_doOrder($this->query->orders, $builder, $tables_columns);
+		$filters = $this->_doFilter($this->uriParser->filters, $builder, $tables_columns);
+		$orders = $this->_doOrder($this->uriParser->orders, $builder, $tables_columns);
 		
-		$paginate = $builder->paginate($this->query->pagesize, $columns, 'page', $this->query->page);
+		$paginate = $builder->paginate($this->uriParser->pagesize, $columns, 'page', $this->uriParser->page);
 		
 		$query = compact('filters') + $extra_query;
 		array_walk($query, function($v, $k) use($paginate) {
@@ -152,7 +153,7 @@ class Repository {
 	}
 	
 	/**
-	 * Convert Paginate object to Array,see `getPaginate`
+	 * Convert Paginate object to Array,see 'getPaginate'
 	 * 
 	 * @param Illuminate\Database\Eloquent\Builder $builder 
 	 * @param Array $columns 
@@ -186,7 +187,7 @@ class Repository {
 		{
 			$tables_columns = $this->_getColumns($builder);
 			
-			$this->_doFilter($this->query->filters, $_b, $tables_columns);
+			$this->_doFilter($this->uriParser->filters, $_b, $tables_columns);
 		}
 		$query = $_b->getQuery();
 		if (!empty($query->groups)) //group by

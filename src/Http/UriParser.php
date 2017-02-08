@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
  * @author guosheng <guosheng1987@126.com>
  */
 
-class Query {
+class UriParser {
 	
 	/**
      * @var The Illuminate\Http\Request
@@ -178,7 +178,7 @@ class Query {
 	public function formvars($columns = [] )
 	{
 		$formvars = [];
-			
+		
 		foreach ($this->filters as $k => $v) {
 			$formvars[$k] = is_array($v) ? end($v):'';
 		}
