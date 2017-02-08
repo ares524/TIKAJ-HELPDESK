@@ -5,6 +5,8 @@ use Closure, Schema, DB ;
 
 use Illuminate\Http\Request;
 
+use Reposilib\Contracts\RepositoryInterface;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -16,7 +18,7 @@ use Reposilib\Http\UriParser;
  * @author guosheng <guosheng1987@126.com>
  */
 
-class Repository {
+abstract class Repository implements RepositoryInterface {
 	
 	/*
 	 *  UriParser instance 

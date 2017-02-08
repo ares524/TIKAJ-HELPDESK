@@ -1,7 +1,9 @@
 <?php
-namespace Reposilib;
+namespace Reposilib\Http;
 
 use Illuminate\Http\Request;
+
+use Reposilib\Contracts\UriParserInterface;
 
 /**
  * Query set several parameters into arrays so that we can use it in Repository class
@@ -9,7 +11,7 @@ use Illuminate\Http\Request;
  * @author guosheng <guosheng1987@126.com>
  */
 
-class UriParser {
+class UriParser implements UriParserInterface {
 	
 	/**
      * @var The Illuminate\Http\Request
@@ -119,54 +121,6 @@ class UriParser {
 		
 		return $page;
 	}
-	
-	/**
-	 * Support Facades method ,see getFilters.
-	 * 
-	 * @return array 
-	 */
-	public function filters()
-	{
-		$filters = $this->filters?:$this->getFilters();
-		
-		return $filters;
-	}
-
-	/**
-	 * Support Facades method ,see getOrders.
-	 * 
-	 * @return array 
-	 */
-	public function orders()
-	{
-		$orders = $this->orders?:$this->getOrders();
-		
-		return $orders;
-	}
-	
-	/**
-	 * Support Facades method ,see getPagesize.
-	 *
-	 * @return int 
-	 */
-	public function pagesize()
-	{
-		$pagesize = $this->pagesize?:$this->getPagesize();
-		
-		return $pagesize;
-	}
-	
-	/**
-	 * Support Facades method ,see getPage.
-	 *
-	 * @return int 
-	 */
-	public function page()
-	{
-		$page = $this->page ?: $this->getPage();
-		
-		return $page;
-	}
 
 	/**
 	 * formvars convert the fitlers into an 'key value' array . And it's used to fill the html form
@@ -175,7 +129,7 @@ class UriParser {
 	 *
 	 * @return array
 	 */
-	public function formvars($columns = [] )
+	public function getFormvars(array $columns = [])
 	{
 		$formvars = [];
 		
