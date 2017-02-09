@@ -4,9 +4,21 @@
 > The Query Builder instance can accept it as where conditions so we don't have to write it in every modules.
 
 ### Install
+Run the following command from you terminal:
 
+    composer require "guosheng1987/laravel-repository-query: 0.*"
+
+or add this to require section in your composer.json file:
+    
+    "laravel-repository-query/repositories": "0.*"
+
+last command 
+
+    composer update
 
 ### Demo
+A simple demo could help us unserstand this library,Let's assume that you start to design your api which shows your user in diffent enterprises that contains several departments and positions.
+The relationship is Enterprises has some Departments,Department has some Positions,and Users belows to one of them,so we bulid four models '**User**','**Department**','**Position**','**Enterprise**' here
 
 At first,in the route file, we find *web.php* and write a simple Resource Route here.(Laravel 5.2 or lower version also similiar)
 
@@ -35,7 +47,7 @@ And in Laravel Docs,they do it like this.
         }
 
     
-        public function index($id)
+        public function index()
         {
 
             $user = $this->users->getUserPaginate();
@@ -59,7 +71,11 @@ What's our UserRepository?Don't worry,it shows here.
 
         public function getUserPaginate()
         {
-            $builder = (new User)->newQuery();
+            $builder = (new User)->newQuery()
+			    ->join('departments as d','users.department_id','=','d.id','LEFT')
+			    ->join('positions','users.position_id','=','positions.id','LEFT')
+			    ->join('enterprise','users.enterprise_id','=','enterprise.id','LEFT')
+			    ->select('users.*');
 
             $user = $this->getPaginate($builder);
 
@@ -67,5 +83,5 @@ What's our UserRepository?Don't worry,it shows here.
         }
     }
 
-After that,let's see our url <http://yoursite.dev/user?&filters[username][like]=abc&filters[gender][equal]=1>.Now the $user pagination result was filtered by **username** and **gender** fields in the User model.
+After that,let's see our url <http://yoursite.dev/user?&filters[username][like]=Al&filters[gender][equal]=1&order[username]=asc>.Now the $user pagination result was filtered by **username** and **gender** fields in the User model.
 You know what I am doing now. Enjoy !!!
