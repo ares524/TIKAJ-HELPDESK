@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @author guosheng <guosheng1987@126.com>
  */
 
-Interface RepositoryInterface{
+Interface RepositoryInterface {
 	
 	/**
 	 * Get Paginate object according to the parameters of url

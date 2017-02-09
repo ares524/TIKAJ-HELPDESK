@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 use Reposilib\Contracts\RepositoryInterface;
 
+use Reposilib\Exceptions\UnknownOperatorException;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -57,15 +59,16 @@ abstract class Repository implements RepositoryInterface {
 		foreach ($tables as &$v)
 		{
 			list($table, $alias) = strpos(strtolower($v), ' as ') !== false ? explode(' as ', $v) : [$v, $v];
-
+			
 			if (!isset($table_columns[$table]))
 				$table_columns[$table] = Schema::getColumnListing($table);
 				//$table_columns[$table] = $query->getConnection()->getDoctrineSchemaManager()->listTableColumns($table);
 			
-			foreach ($table_columns[$table] as $key/* => $value*/)
-				$_columns[$key] = isset($_columns[$key]) ? $_columns[$key] : $alias.'.'.$key;
+			foreach ($table_columns[$table] as $key)
+				$_columns[] = $alias.'.'.$key;
 		}
-		return $_columns;
+	
+		return array_unique($_columns);
 	}
 
 	/**
@@ -79,16 +82,21 @@ abstract class Repository implements RepositoryInterface {
 	 */
 	private function _doFilter($filters, Builder $builder, $columns = [])
 	{
+		
 		$operators = [
 			'in' => 'in', 'not_in' => 'not in', 'is' => 'is', 'min' => '>=', 'greater_equal' => '>=', 'max' => '<=', 'less_equal' => '<=', 'between' => 'between', 'not_between' => 'not between', 'greater' => '>', 'less' => '<', 'not_equal' => '<>', 'inequal' => '<>', 'equal' => '=',
 			'like' => 'like', 'left_like' => 'like', 'right_like' => 'like', 'rlike' => 'rlike', 'ilike' => 'ilike', 'like_binary' => 'like binary', 'left_like_binary' => 'like binary', 'right_like_binary' => 'like binary', 'not_like' => 'not like', 'not_left_like' => 'not like', 'not_right_like' => 'not like',
 			'and' => '&', 'or' => '|', 'xor' => '^', 'left_shift' => '<<', 'right_shift' => '>>', 'bitwise_not' => '~', 'bitwise_not_any' => '~*', 'not_bitwise_not' => '!~', 'not_bitwise_not_any' => '!~*',
 			'regexp' => 'regexp', 'not_regexp' => 'not regexp', 'similar_to' => 'similar to', 'not_similar_to' => 'not similar to',
 		];
-
+		
 		array_walk($filters, function($v, $key) use ($builder, $operators, $columns) {
-			$key = !empty($columns[$key]) ? $columns[$key] : $key;
-			array_walk($v, function($value, $method) use ($builder, $key, $operators){
+			
+			array_walk($v, function($value, $method) use ($builder, $key, $operators) {
+				
+				if(!in_array($method, array_keys($operators))) 
+					throw new UnknownOperatorException("Operator '{$method}' is invaild in Sql");
+													
 				if (empty($value) && $value !== '0') return; //''不做匹配
 				else if (in_array($method, ['like', 'like_binary', 'not_like'])) $value = '%'.$value.'%';
 				else if (in_array($method, ['left_like', 'left_like_binary', 'not_left_like'])) $value = $value.'%';
@@ -116,13 +124,12 @@ abstract class Repository implements RepositoryInterface {
 	 
 	private function _doOrder($orders, Builder $builder, $columns = [])
 	{
+		$orders = $this->uriParser->orders;
+	
 		if(!empty($orders)) 
 			foreach ($orders as $k => $v)
-				$builder->orderBy($columns[$k] ?: $k, $v);
-		else		
-			$orders = [$builder->getModel()->getKeyName() => 'desc'];
-		
-				
+				$builder->orderBy($k, $v);
+								
 		return $orders;
 	}
 	
