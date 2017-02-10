@@ -10,7 +10,6 @@
 	"query",
 	"query library"
   ],
-  "minimum-stability": "dev",
   "license": "BSD 2-Clause",
   "authors": [
     {
@@ -47,7 +46,9 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "0.x-dev"
+      "dev-master": "0.1.x-dev"
     }
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }
